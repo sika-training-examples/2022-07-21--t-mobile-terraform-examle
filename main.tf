@@ -18,14 +18,20 @@ resource "digitalocean_ssh_key" "default" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCslNKgLyoOrGDerz9pA4a4Mc+EquVzX52AkJZz+ecFCYZ4XQjcg2BK1P9xYfWzzl33fHow6pV/C6QC3Fgjw7txUeH7iQ5FjRVIlxiltfYJH4RvvtXcjqjk8uVDhEcw7bINVKVIS856Qn9jPwnHIhJtRJe9emE7YsJRmNSOtggYk/MaV2Ayx+9mcYnA/9SBy45FPHjMlxntoOkKqBThWE7Tjym44UNf44G8fd+kmNYzGw9T5IKpH1E1wMR+32QJBobX6d7k39jJe8lgHdsUYMbeJOFPKgbWlnx9VbkZh+seMSjhroTgniHjUl8wBFgw0YnhJ/90MgJJL4BToxu9PVnH"
 }
 
-resource "digitalocean_droplet" "example" {
-  image  = "debian-11-x64"
-  name   = "example"
-  region = "fra1"
-  size   = "s-1vcpu-1gb"
-  ssh_keys = [
+locals {
+  REGION       = "fra1"
+  DEBIAN_IMAGE = "debian-11-x64"
+  admin_ssh_keys = [
     digitalocean_ssh_key.default.id,
   ]
+}
+
+resource "digitalocean_droplet" "example" {
+  image    = local.DEBIAN_IMAGE
+  name     = "example"
+  region   = local.REGION
+  size     = "s-1vcpu-1gb"
+  ssh_keys = local.admin_ssh_keys
 }
 
 output "example-ip" {
@@ -37,7 +43,7 @@ resource "digitalocean_database_cluster" "example" {
   engine     = "pg"
   version    = "13"
   size       = "db-s-1vcpu-1gb"
-  region     = "fra1"
+  region     = local.REGION
   node_count = 1
 }
 
