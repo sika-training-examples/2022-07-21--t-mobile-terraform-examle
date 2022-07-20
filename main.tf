@@ -31,3 +31,17 @@ resource "digitalocean_droplet" "example" {
 output "example-ip" {
   value = digitalocean_droplet.example.ipv4_address
 }
+
+resource "digitalocean_database_cluster" "example" {
+  name       = "example"
+  engine     = "pg"
+  version    = "13"
+  size       = "db-s-1vcpu-1gb"
+  region     = "fra1"
+  node_count = 1
+}
+
+output "db" {
+  value     = digitalocean_database_cluster.example
+  sensitive = true
+}
