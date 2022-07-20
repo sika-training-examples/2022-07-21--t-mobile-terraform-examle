@@ -131,3 +131,32 @@ resource "digitalocean_droplet" "web" {
     destination = "/var/www/html/index.html"
   }
 }
+
+resource "digitalocean_droplet" "web2" {
+  image     = local.DEBIAN_IMAGE
+  name      = "web2"
+  region    = local.REGION
+  size      = "s-1vcpu-1gb"
+  user_data = <<EOT
+#cloud-config
+ssh_pwauth: yes
+password: asdfasdf2020
+chpasswd:
+  expire: false
+write_files:
+- path: /html/index.html
+  permissions: "0755"
+  owner: root:root
+  content: |
+    <h1>Hello from Cloud Init
+runcmd:
+  - |
+    apt update
+    apt install -y nginx
+    cp /html/index.html /var/www/html/index.html
+EOT
+}
+
+output "web2-ip" {
+  value = digitalocean_droplet.web2.ipv4_address
+}
