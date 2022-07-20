@@ -40,6 +40,41 @@ output "example-ip" {
   value = digitalocean_droplet.example.*.ipv4_address
 }
 
+locals {
+  VM_TYPE_1 = {
+    image = "debian-11-x64"
+    size  = "s-1vcpu-1gb"
+  }
+  VM_TYPE_2 = {
+    image = "debian-10-x64"
+    size  = "s-1vcpu-2gb"
+  }
+}
+
+resource "digitalocean_droplet" "foo" {
+  for_each = {
+    "a" = local.VM_TYPE_1
+    "c" = local.VM_TYPE_2
+    "f" = {
+      image = "debian-9-x64"
+      size  = "c-2"
+    }
+  }
+
+  image    = each.value.image
+  name     = "foo-${each.key}"
+  region   = local.REGION
+  size     = each.value.size
+  ssh_keys = local.admin_ssh_keys
+}
+
+output "foo-ip" {
+  value = {
+    for key, val in digitalocean_droplet.foo :
+    key => val.ipv4_address
+  }
+}
+
 resource "digitalocean_database_cluster" "example" {
   name       = "example"
   engine     = "pg"
