@@ -97,6 +97,10 @@ locals {
 }
 
 resource "digitalocean_database_db" "example-foo" {
+  lifecycle {
+    prevent_destroy = true
+  }
+
   cluster_id = digitalocean_database_cluster.example.id
   name       = "foo"
 
@@ -133,6 +137,11 @@ resource "digitalocean_droplet" "web" {
 }
 
 resource "digitalocean_droplet" "web2" {
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  ssh_keys  = local.admin_ssh_keys
   image     = local.DEBIAN_IMAGE
   name      = "web2"
   region    = local.REGION
