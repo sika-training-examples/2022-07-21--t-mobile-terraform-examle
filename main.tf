@@ -27,15 +27,17 @@ locals {
 }
 
 resource "digitalocean_droplet" "example" {
+  count = 2
+
   image    = local.DEBIAN_IMAGE
-  name     = "example"
+  name     = "example${count.index}"
   region   = local.REGION
   size     = "s-1vcpu-1gb"
   ssh_keys = local.admin_ssh_keys
 }
 
 output "example-ip" {
-  value = digitalocean_droplet.example.ipv4_address
+  value = digitalocean_droplet.example.*.ipv4_address
 }
 
 resource "digitalocean_database_cluster" "example" {
