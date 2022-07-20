@@ -88,3 +88,46 @@ output "db-conn" {
   value     = digitalocean_database_cluster.example.uri
   sensitive = true
 }
+
+locals {
+  db_host     = digitalocean_database_cluster.example.host
+  db_port     = digitalocean_database_cluster.example.port
+  db_user     = digitalocean_database_cluster.example.user
+  db_password = digitalocean_database_cluster.example.password
+}
+
+resource "digitalocean_database_db" "example-foo" {
+  cluster_id = digitalocean_database_cluster.example.id
+  name       = "foo"
+
+  provisioner "local-exec" {
+    # command = "slu postgres ping -H ${local.db_host} -P ${local.db_port} -u ${local.db_user} -p ${local.db_password} -n ${self.name}"
+    command = "echo slu postgres ping -H ${local.db_host} -P ${local.db_port} -u ${local.db_user} -p ${local.db_password} -n ${self.name}"
+  }
+}
+
+resource "digitalocean_droplet" "web" {
+  image    = local.DEBIAN_IMAGE
+  name     = "web"
+  region   = local.REGION
+  size     = "s-1vcpu-1gb"
+  ssh_keys = local.admin_ssh_keys
+
+  connection {
+    type = "ssh"
+    user = "root"
+    host = self.ipv4_address
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "apt-get update",
+      "apt-get install -y nginx",
+    ]
+  }
+
+  provisioner "file" {
+    content     = "<h1>Hello T-Mobile"
+    destination = "/var/www/html/index.html"
+  }
+}
