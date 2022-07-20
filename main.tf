@@ -41,7 +41,7 @@ resource "digitalocean_database_cluster" "example" {
   node_count = 1
 }
 
-output "db" {
-  value     = digitalocean_database_cluster.example
+output "db-conn" {
+  value     = digitalocean_database_cluster.example.uri
   sensitive = true
 }
