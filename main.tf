@@ -31,6 +31,12 @@ locals {
 }
 
 resource "digitalocean_droplet" "example" {
+  lifecycle {
+    ignore_changes = [
+      ssh_keys,
+    ]
+  }
+
   count = 2
 
   image    = local.DEBIAN_IMAGE
@@ -56,6 +62,12 @@ locals {
 }
 
 resource "digitalocean_droplet" "foo" {
+  lifecycle {
+    ignore_changes = [
+      ssh_keys,
+    ]
+  }
+
   for_each = {
     "a" = local.VM_TYPE_1
     "c" = local.VM_TYPE_2
@@ -115,6 +127,12 @@ resource "digitalocean_database_db" "example-foo" {
 }
 
 resource "digitalocean_droplet" "web" {
+  lifecycle {
+    ignore_changes = [
+      ssh_keys
+    ]
+  }
+
   image    = local.DEBIAN_IMAGE
   name     = "web"
   region   = local.REGION
@@ -143,6 +161,10 @@ resource "digitalocean_droplet" "web" {
 resource "digitalocean_droplet" "web2" {
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      ssh_keys,
+      user_data,
+    ]
   }
 
   ssh_keys  = local.admin_ssh_keys
