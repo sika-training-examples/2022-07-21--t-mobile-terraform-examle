@@ -12,7 +12,6 @@ variable "name" {
   description = "Name of VM"
 }
 
-
 variable "image" {
   type = string
 }
@@ -38,10 +37,6 @@ variable "user_data" {
   default     = null
 }
 
-resource "digitalocean_reserved_ip" "this" {
-  region = var.region
-}
-
 resource "digitalocean_droplet" "this" {
   image     = var.image
   name      = var.name
@@ -51,13 +46,8 @@ resource "digitalocean_droplet" "this" {
   user_data = var.user_data
 }
 
-resource "digitalocean_reserved_ip_assignment" "this" {
-  ip_address = digitalocean_reserved_ip.this.ip_address
-  droplet_id = digitalocean_droplet.this.id
-}
-
 output "ip" {
-  value = digitalocean_reserved_ip.this.ip_address
+  value = digitalocean_droplet.this.ipv4_address
 }
 
 output "digitalocean_droplet" {
