@@ -4,6 +4,7 @@ resource "digitalocean_ssh_key" "default" {
 }
 
 locals {
+  cloudflare_zone_id = "f2c00168a7ecd694bb1ba017b332c019"
   ssh_keys = [
     digitalocean_ssh_key.default.id,
   ]
@@ -40,4 +41,40 @@ output "ips" {
     for key, val in module.vms :
     key => val.ip
   }
+}
+
+
+resource "digitalocean_loadbalancer" "counter" {
+  name   = "counter"
+  region = "fra1"
+
+  forwarding_rule {
+    entry_port     = 80
+    entry_protocol = "http"
+
+    target_port     = 80
+    target_protocol = "http"
+  }
+
+  healthcheck {
+    port     = 80
+    protocol = "tcp"
+  }
+
+  droplet_ids = module.vms.*.digitalocean_droplet.id
+}
+
+output "lb-ip" {
+  value = digitalocean_loadbalancer.counter.ip
+}
+
+resource "cloudflare_record" "counter" {
+  zone_id = local.cloudflare_zone_id
+  name    = "counter"
+  value   = digitalocean_loadbalancer.counter.ip
+  type    = "A"
+}
+
+output "lb-domain" {
+  value = cloudflare_record.counter.hostname
 }
