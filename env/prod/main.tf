@@ -11,3 +11,7 @@ module "counter" {
   cloudflare_zone_id = local.cloudflare_zone_id
   ssh_keys           = local.ssh_keys
 }
+
+output "domain" {
+  value = module.counter.domain
+}
