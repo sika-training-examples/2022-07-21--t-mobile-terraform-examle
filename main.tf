@@ -10,71 +10,14 @@ locals {
   ]
 }
 
-module "redis" {
-  source = "./modules/redis"
-  name   = "counter"
-}
-
-module "vms" {
-  count = 2
-
-  source    = "./modules/vm"
-  name      = "counter-${count.index}"
-  image     = "docker-20-04"
-  ssh_keys  = local.ssh_keys
-  user_data = <<EOT
-#cloud-config
-runcmd:
-  - |
-    docker pull -q ondrejsika/counter-tmobile
-    docker run --name counter -d -p 80:80 -e REDIS="${module.redis.uri}" ondrejsika/counter-tmobile
-EOT
-}
-
-output "redis-uri" {
-  value     = module.redis.uri
-  sensitive = true
-}
-
-output "ips" {
-  value = {
-    for key, val in module.vms :
-    key => val.ip
-  }
-}
-
-
-resource "digitalocean_loadbalancer" "counter" {
-  name   = "counter"
-  region = "fra1"
-
-  forwarding_rule {
-    entry_port     = 80
-    entry_protocol = "http"
-
-    target_port     = 80
-    target_protocol = "http"
+module "counters" {
+  for_each = {
+    "foo" = {}
+    "bar" = {}
   }
 
-  healthcheck {
-    port     = 80
-    protocol = "tcp"
-  }
-
-  droplet_ids = module.vms.*.digitalocean_droplet.id
-}
-
-output "lb-ip" {
-  value = digitalocean_loadbalancer.counter.ip
-}
-
-resource "cloudflare_record" "counter" {
-  zone_id = local.cloudflare_zone_id
-  name    = "counter"
-  value   = digitalocean_loadbalancer.counter.ip
-  type    = "A"
-}
-
-output "lb-domain" {
-  value = cloudflare_record.counter.hostname
+  source             = "./apps/counter"
+  name               = each.key
+  cloudflare_zone_id = local.cloudflare_zone_id
+  ssh_keys           = local.ssh_keys
 }
