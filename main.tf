@@ -29,7 +29,3 @@ output "ips" {
     "world" = module.vm--world.ip
   }
 }
-
-output "droplet_cost" {
-  value = module.vm--hello.digitalocean_droplet.price_monthly + module.vm--world.digitalocean_droplet.price_monthly
-}
