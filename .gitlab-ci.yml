@@ -1,0 +1,134 @@
+image: sikalabs/ci
+
+stages:
+  - plan
+  - apply
+
+cache:
+  paths:
+    - env/core/.terraform/**/*
+    - env/dev/.terraform/**/*
+    - env/prod/.terraform/**/*
+
+.plan:
+  stage: plan
+  script:
+    - cd env/$ENV
+    - make tf-init GITLAB_USERNAME=ondrejsika GITLAB_TOKEN=$ONDREJSIKA_TOKEN
+    - shopt -s expand_aliases
+    - alias convert_report="jq -r '([.resource_changes[]?.change.actions?]|flatten)|{\"create\":(map(select(.==\"create\"))|length),\"update\":(map(select(.==\"update\"))|length),\"delete\":(map(select(.==\"delete\"))|length)}'"
+    - terraform plan -out=terraform.tfplan
+    - terraform show --json terraform.tfplan | convert_report > plan.json
+  artifacts:
+    paths:
+      - ./env/$ENV/terraform.tfplan
+    reports:
+      terraform: ./env/$ENV/plan.json
+
+.apply:
+  stage: apply
+  script:
+    - cd env/$ENV
+    - make tf-init GITLAB_USERNAME=ondrejsika GITLAB_TOKEN=$ONDREJSIKA_TOKEN
+    - terraform apply terraform.tfplan
+
+.core:
+  before_script:
+    - cp $CORE_TFVARS ./env/core/terraform.tfvars
+  variables:
+    ENV: core
+
+.dev:
+  before_script:
+    - cp $DEV_TFVARS ./env/dev/terraform.tfvars
+  variables:
+    ENV: dev
+
+.prod:
+  before_script:
+    - cp $PROD_TFVARS ./env/prod/terraform.tfvars
+  variables:
+    ENV: prod
+
+plan:core:
+  extends:
+    - .plan
+    - .core
+  only:
+    changes:
+      - env/core/**
+      - env/core/**/*
+
+plan:dev:
+  extends:
+    - .plan
+    - .dev
+  only:
+    changes:
+      - env/dev/**
+      - env/dev/**/*
+      - apps/**
+      - apps/**/*
+      - modules/**
+      - modules/**/*
+
+plan:prod:
+  extends:
+    - .plan
+    - .prod
+  only:
+    changes:
+      - env/prod/**
+      - env/prod/**/*
+      - apps/**
+      - apps/**/*
+      - modules/**
+      - modules/**/*
+
+
+apply:core:
+  extends:
+    - .apply
+    - .core
+  needs:
+    - plan:core
+  only:
+    refs:
+      - main
+    changes:
+      - env/core/**
+      - env/core/**/*
+
+apply:dev:
+  extends:
+    - .apply
+    - .dev
+  needs:
+    - plan:dev
+  only:
+    refs:
+      - main
+    changes:
+      - env/dev/**
+      - env/dev/**/*
+      - apps/**
+      - apps/**/*
+      - modules/**
+      - modules/**/*
+
+apply:prod:
+  extends:
+    - .apply
+    - .prod
+  needs:
+    - plan:prod
+  only:
+    refs:
+      - main
+    changes:
+      - env/prod/**
+      - env/prod/**/*
+      - apps/**
+      - apps/**/*
+      - modules/**
+      - modules/**/*
