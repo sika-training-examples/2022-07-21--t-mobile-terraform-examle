@@ -37,6 +37,7 @@ locals {
 
 resource "digitalocean_vpc" "main" {
   region = "fra1"
+  name   = local.prefix
 }
 
 module "db" {
