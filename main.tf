@@ -9,17 +9,32 @@ locals {
   ]
 }
 
+module "redis" {
+  source = "./modules/redis"
+  name   = "counter"
+}
+
 module "vms" {
   for_each = {
-    "hello" = {}
-    "world" = {}
-    "foo"   = {}
+    "counter-1" = {}
   }
 
-  source   = "./modules/vm"
-  name     = each.key
-  image    = "debian-11-x64"
-  ssh_keys = local.ssh_keys
+  source    = "./modules/vm"
+  name      = each.key
+  image     = "docker-20-04"
+  ssh_keys  = local.ssh_keys
+  user_data = <<EOT
+#cloud-config
+runcmd:
+  - |
+    docker pull -q ondrejsika/counter-tmobile
+    docker run --name counter -d -p 80:80 -e REDIS="${module.redis.uri}" ondrejsika/counter-tmobile
+EOT
+}
+
+output "redis-uri" {
+  value     = module.redis.uri
+  sensitive = true
 }
 
 output "ips" {
