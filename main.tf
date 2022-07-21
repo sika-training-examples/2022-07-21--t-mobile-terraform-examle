@@ -1,0 +1,35 @@
+resource "digitalocean_ssh_key" "default" {
+  name       = "ondrejsika"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCslNKgLyoOrGDerz9pA4a4Mc+EquVzX52AkJZz+ecFCYZ4XQjcg2BK1P9xYfWzzl33fHow6pV/C6QC3Fgjw7txUeH7iQ5FjRVIlxiltfYJH4RvvtXcjqjk8uVDhEcw7bINVKVIS856Qn9jPwnHIhJtRJe9emE7YsJRmNSOtggYk/MaV2Ayx+9mcYnA/9SBy45FPHjMlxntoOkKqBThWE7Tjym44UNf44G8fd+kmNYzGw9T5IKpH1E1wMR+32QJBobX6d7k39jJe8lgHdsUYMbeJOFPKgbWlnx9VbkZh+seMSjhroTgniHjUl8wBFgw0YnhJ/90MgJJL4BToxu9PVnH"
+}
+
+locals {
+  ssh_keys = [
+    digitalocean_ssh_key.default.id,
+  ]
+}
+
+module "vm--hello" {
+  source   = "./modules/vm"
+  name     = "hello"
+  image    = "debian-11-x64"
+  ssh_keys = local.ssh_keys
+}
+
+module "vm--world" {
+  source   = "./modules/vm"
+  name     = "world"
+  image    = "debian-11-x64"
+  ssh_keys = local.ssh_keys
+}
+
+output "ips" {
+  value = {
+    "hello" = module.vm--hello.ip
+    "world" = module.vm--world.ip
+  }
+}
+
+output "droplet_cost" {
+  value = module.vm--hello.digitalocean_droplet.price_monthly + module.vm--world.digitalocean_droplet.price_monthly
+}
