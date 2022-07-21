@@ -64,8 +64,9 @@ EOT
 }
 
 resource "digitalocean_loadbalancer" "counter" {
-  name   = local.prefix
-  region = "fra1"
+  name     = local.prefix
+  region   = "fra1"
+  vpc_uuid = digitalocean_vpc.main.id
 
   forwarding_rule {
     entry_port     = 80
