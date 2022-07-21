@@ -54,37 +54,25 @@ plan:core:
   extends:
     - .plan
     - .core
-  only:
-    changes:
-      - env/core/**
-      - env/core/**/*
+  except:
+    - live-dev
+    - live-prod
 
 plan:dev:
   extends:
     - .plan
     - .dev
-  only:
-    changes:
-      - env/dev/**
-      - env/dev/**/*
-      - apps/**
-      - apps/**/*
-      - modules/**
-      - modules/**/*
+  except:
+    - live-core
+    - live-prod
 
 plan:prod:
   extends:
     - .plan
     - .prod
-  only:
-    changes:
-      - env/prod/**
-      - env/prod/**/*
-      - apps/**
-      - apps/**/*
-      - modules/**
-      - modules/**/*
-
+  except:
+    - live-core
+    - live-dev
 
 apply:core:
   extends:
@@ -93,11 +81,7 @@ apply:core:
   needs:
     - plan:core
   only:
-    refs:
-      - live-core
-    changes:
-      - env/core/**
-      - env/core/**/*
+    - live-core
 
 apply:dev:
   extends:
@@ -106,15 +90,7 @@ apply:dev:
   needs:
     - plan:dev
   only:
-    refs:
-      - live-dev
-    changes:
-      - env/dev/**
-      - env/dev/**/*
-      - apps/**
-      - apps/**/*
-      - modules/**
-      - modules/**/*
+    - live-dev
 
 apply:prod:
   extends:
@@ -123,12 +99,4 @@ apply:prod:
   needs:
     - plan:prod
   only:
-    refs:
-      - live-prod
-    changes:
-      - env/prod/**
-      - env/prod/**/*
-      - apps/**
-      - apps/**/*
-      - modules/**
-      - modules/**/*
+    - live-prod
