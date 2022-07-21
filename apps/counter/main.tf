@@ -35,6 +35,10 @@ locals {
   prefix = "counter-${var.name}"
 }
 
+resource "digitalocean_vpc" "main" {
+  region = "fra1"
+}
+
 module "db" {
   source = "../../modules/redis"
   name   = local.prefix
