@@ -10,6 +10,7 @@ module "counter" {
   name               = "prod"
   cloudflare_zone_id = local.cloudflare_zone_id
   ssh_keys           = local.ssh_keys
+  backend_count      = 3
 }
 
 output "domain" {
