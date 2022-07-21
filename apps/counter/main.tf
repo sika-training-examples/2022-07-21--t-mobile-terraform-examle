@@ -52,7 +52,7 @@ module "backend" {
 runcmd:
   - |
     docker pull -q ondrejsika/counter-tmobile
-    docker run --name counter -d -p 80:80 -e REDIS="${module.db.uri}" ondrejsika/counter-tmobile
+    docker run --name counter -d -p 80:80 --hostname ${local.prefix}-${count.index} -e REDIS="${module.db.uri}" ondrejsika/counter-tmobile
 EOT
 }
 
