@@ -15,12 +15,10 @@ module "redis" {
 }
 
 module "vms" {
-  for_each = {
-    "counter-1" = {}
-  }
+  count = 2
 
   source    = "./modules/vm"
-  name      = each.key
+  name      = "counter-${count.index}"
   image     = "docker-20-04"
   ssh_keys  = local.ssh_keys
   user_data = <<EOT
