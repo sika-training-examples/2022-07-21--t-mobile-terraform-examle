@@ -22,6 +22,11 @@ variable "size" {
   default = "db-s-1vcpu-1gb"
 }
 
+variable "vpc_uuid" {
+  type    = string
+  default = null
+}
+
 resource "digitalocean_database_cluster" "this" {
   name       = var.name
   engine     = "redis"
@@ -29,6 +34,7 @@ resource "digitalocean_database_cluster" "this" {
   size       = var.size
   region     = var.region
   node_count = 1
+  vpc_uuid   = var.vpc_uuid
 }
 
 output "uri" {
