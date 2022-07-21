@@ -94,7 +94,7 @@ apply:core:
     - plan:core
   only:
     refs:
-      - main
+      - live-core
     changes:
       - env/core/**
       - env/core/**/*
@@ -107,7 +107,7 @@ apply:dev:
     - plan:dev
   only:
     refs:
-      - main
+      - live-dev
     changes:
       - env/dev/**
       - env/dev/**/*
@@ -124,7 +124,7 @@ apply:prod:
     - plan:prod
   only:
     refs:
-      - main
+      - live-prod
     changes:
       - env/prod/**
       - env/prod/**/*
