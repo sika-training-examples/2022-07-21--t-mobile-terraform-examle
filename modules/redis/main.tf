@@ -28,13 +28,13 @@ variable "vpc_uuid" {
 }
 
 resource "digitalocean_database_cluster" "this" {
-  name       = var.name
-  engine     = "redis"
-  version    = "6"
-  size       = var.size
-  region     = var.region
-  node_count = 1
-  vpc_uuid   = var.vpc_uuid
+  name                 = var.name
+  engine               = "redis"
+  version              = "6"
+  size                 = var.size
+  region               = var.region
+  node_count           = 1
+  private_network_uuid = var.vpc_uuid
 }
 
 output "uri" {
