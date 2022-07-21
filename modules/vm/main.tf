@@ -32,16 +32,23 @@ variable "ssh_keys" {
   default = []
 }
 
+variable "user_data" {
+  type        = string
+  description = "User data for cloud init"
+  default     = null
+}
+
 resource "digitalocean_reserved_ip" "this" {
   region = var.region
 }
 
 resource "digitalocean_droplet" "this" {
-  image    = var.image
-  name     = var.name
-  region   = var.region
-  size     = var.size
-  ssh_keys = var.ssh_keys
+  image     = var.image
+  name      = var.name
+  region    = var.region
+  size      = var.size
+  ssh_keys  = var.ssh_keys
+  user_data = var.user_data
 }
 
 resource "digitalocean_reserved_ip_assignment" "this" {
