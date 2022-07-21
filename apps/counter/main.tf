@@ -41,8 +41,9 @@ resource "digitalocean_vpc" "main" {
 }
 
 module "db" {
-  source = "../../modules/redis"
-  name   = local.prefix
+  source   = "../../modules/redis"
+  name     = local.prefix
+  vpc_uuid = digitalocean_vpc.main.id
 }
 
 module "backend" {
@@ -59,6 +60,7 @@ runcmd:
     docker pull -q ondrejsika/counter-tmobile
     docker run --name counter -d -p 80:80 --hostname ${local.prefix}-${count.index} -e REDIS="${module.db.uri}" ondrejsika/counter-tmobile
 EOT
+  vpc_uuid  = digitalocean_vpc.main.id
 }
 
 resource "digitalocean_loadbalancer" "counter" {
