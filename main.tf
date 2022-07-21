@@ -9,23 +9,22 @@ locals {
   ]
 }
 
-module "vm--hello" {
-  source   = "./modules/vm"
-  name     = "hello"
-  image    = "debian-11-x64"
-  ssh_keys = local.ssh_keys
-}
+module "vms" {
+  for_each = {
+    "hello" = {}
+    "world" = {}
+    "foo"   = {}
+  }
 
-module "vm--world" {
   source   = "./modules/vm"
-  name     = "world"
+  name     = each.key
   image    = "debian-11-x64"
   ssh_keys = local.ssh_keys
 }
 
 output "ips" {
   value = {
-    "hello" = module.vm--hello.ip
-    "world" = module.vm--world.ip
+    for key, val in module.vms :
+    key => val.ip
   }
 }
