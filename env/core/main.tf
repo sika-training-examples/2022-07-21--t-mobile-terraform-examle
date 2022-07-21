@@ -9,15 +9,3 @@ locals {
     digitalocean_ssh_key.default.id,
   ]
 }
-
-module "counters" {
-  for_each = {
-    "foo" = {}
-    "bar" = {}
-  }
-
-  source             = "./apps/counter"
-  name               = each.key
-  cloudflare_zone_id = local.cloudflare_zone_id
-  ssh_keys           = local.ssh_keys
-}
