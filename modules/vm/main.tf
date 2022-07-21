@@ -37,6 +37,11 @@ variable "user_data" {
   default     = null
 }
 
+variable "vpc_uuid" {
+  type    = string
+  default = null
+}
+
 resource "digitalocean_droplet" "this" {
   image     = var.image
   name      = var.name
@@ -44,6 +49,7 @@ resource "digitalocean_droplet" "this" {
   size      = var.size
   ssh_keys  = var.ssh_keys
   user_data = var.user_data
+  vpc_uuid  = var.vpc_uuid
 }
 
 output "ip" {
