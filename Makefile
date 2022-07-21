@@ -42,3 +42,25 @@ endif
 		-backend-config="lock_method=POST" \
 		-backend-config="unlock_method=DELETE" \
 		-backend-config="retry_wait_min=5"
+
+gen-docs:
+	# Generate the docs for environments
+	terraform-docs markdown ./env/core > ./env/core/README.md
+	git add ./env/core/README.md
+	terraform-docs markdown ./env/dev > ./env/dev/README.md
+	git add ./env/dev/README.md
+	terraform-docs markdown ./env/prod > ./env/prod/README.md
+	git add ./env/prod/README.md
+
+	# Generate the docs for apps
+	terraform-docs markdown ./apps/counter > ./apps/counter/README.md
+	git add ./apps/counter/README.md
+
+	# Generate the docs for modules
+	terraform-docs markdown ./modules/vm > ./modules/vm/README.md
+	git add ./modules/vm/README.md
+	terraform-docs markdown ./modules/redis > ./modules/redis/README.md
+	git add ./modules/redis/README.md
+
+	# Commit
+	git commit -m "[auto] docs: Terraform generated docs"
